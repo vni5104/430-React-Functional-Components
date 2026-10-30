@@ -1,0 +1,51 @@
+const React = require('react');
+const { useState, useEffect } = React;
+const { createRoot } = require('react-dom/client');
+
+const SongContainer = (props) => {
+    const [songs, setSongs] = useState(props.songs);
+    const [reload, setReload] = useState(false);
+
+    useEffect(() => {
+        const loadSongsFromServer = async () => {
+        console.log('Loading Songs...');
+        
+        const response = await fetch('/getSongs');
+        const data = await response.json();
+        setSongs(data);
+        };
+
+        loadSongsFromServer();
+    }, [reload]);
+
+    if (songs.length === 0) {
+        return (
+            <>
+                <h3>No Songs Yet!</h3>
+            </>
+        );
+    }
+
+    const SongList = songs.map((song) => {
+        return (
+            <div key={song.title}>
+                <h2>{song.artist} - <i>{song.title}</i></h2>
+            </div>
+        );
+    });
+
+    return (
+        <>
+            <h1>My Favorite Song!</h1>
+            <button onClick={() => setReload(!reload)}>Reload Songs</button>
+            {SongList}
+        </>
+    );
+};
+
+const init = () => {
+    const root = createRoot(document.querySelector('#app'));
+    root.render(<SongContainer songs={[]} />);
+};
+
+window.onload = init;
